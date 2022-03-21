@@ -181,7 +181,7 @@ public class l001 {
   public static void rootToAllLeafPath(
     TreeNode root,
     ArrayList<Integer> smallAns,
-    ArrayList<ArrayList<TreeNode>> ans
+    ArrayList<ArrayList<Integer>> ans
   ) {
     if (root == null) {
       return;
@@ -201,14 +201,55 @@ public class l001 {
     smallAns.remove(smallAns.size() - 1);
   }
 
-  public static ArrayList<ArrayList<TreeNode>> rootToAllLeafPath(
-    TreeNode root
-  ) {
-    ArrayList<ArrayList<TreeNode>> ans = new ArrayList<>();
-    ArrayList<TreeNode> smallAns = new ArrayList<>(); //smallAns act as a bucket
+  public static ArrayList<ArrayList<Integer>> rootToAllLeafPath(TreeNode root) {
+    ArrayList<ArrayList<Integer>> ans = new ArrayList<>();
+    ArrayList<Integer> smallAns = new ArrayList<>(); //smallAns act as a bucket
 
     rootToAllLeafPath(root, smallAns, ans);
     return ans;
+  }
+
+  public static void exactlyOneChild(TreeNode root, ArrayList<Integer> ans) {
+    if (root == null || root.left == null && root.right == null) {
+      return; //hande the leaf part here also
+    }
+    if (root.left == null || root.right == null) { //means single child
+      ans.add(root.val); //return nhi krege coz uske niche bhi tree exist kr skta
+    }
+    exactlyOneChild(root.left, ans); //simply travel in preorder
+    exactlyOneChild(root.right, ans);
+  }
+
+  public static ArrayList<Integer> exactlyOneChild(TreeNode root) {
+    ArrayList<Integer> ans = new ArrayList<>();
+    exactlyOneChild(root, ans);
+    return ans;
+  }
+
+  // count single child NODES with taking static
+  static int count = 0;
+
+  public static void ExactlyOneChild(TreeNode root) {
+    if (root == null || (root.left == null && root.right == null)) return;
+    if (root.left == null || root.right == null) count++;
+    countExactlyOneChild(root.left);
+    countExactlyOneChild(root.right);
+  }
+
+  public static int countExactlyOneChild(TreeNode node) {
+    ExactlyOneChild(node);
+    return count;
+  }
+
+  //single child Node with Not static way
+  public static int countExactlyOneChild(TreeNode node) {
+    if (node == null || (node.left == null && node.right == null)) return 0; //means it is leaf
+    //faith -> left apna count le aayega and right apna le aayega
+    int left = countExactlyOneChild(node.left);
+    int right = countExactlyOneChild(node.right);
+    int ans = left + right;
+    if (node.left == null || node.right == null) count++;
+    return count;
   }
 
   public static void main(String[] args) {
