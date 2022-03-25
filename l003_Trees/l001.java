@@ -1,4 +1,6 @@
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 public class l001 {
 
@@ -46,10 +48,10 @@ public class l001 {
     ans.add(root.val);
   }
 
-  public static void Traversal() {
-    ArrayList<Integer> ans = new ArrayList<>();
-    preOrderTraversal(root, ans);
-  }
+  // public static void Traversal() {
+  //   ArrayList<Integer> ans = new ArrayList<>();
+  //   preOrderTraversal(root, ans);
+  // }
 
   //   ==========================================================================
   public static int size(TreeNode root) {
@@ -175,7 +177,7 @@ public class l001 {
     if (res) {
       ans.add(root);
     }
-    return ans;
+    return res;
   }
 
   public static void rootToAllLeafPath(
@@ -242,15 +244,251 @@ public class l001 {
   }
 
   //single child Node with Not static way
-  public static int countExactlyOneChild(TreeNode node) {
+  public static int countExactlyOneChild_01(TreeNode node) {
     if (node == null || (node.left == null && node.right == null)) return 0; //means it is leaf
     //faith -> left apna count le aayega and right apna le aayega
-    int left = countExactlyOneChild(node.left);
-    int right = countExactlyOneChild(node.right);
+    int left = countExactlyOneChild_01(node.left);
+    int right = countExactlyOneChild_01(node.right);
     int ans = left + right;
-    if (node.left == null || node.right == null) count++;
-    return count;
+    if (node.left == null || node.right == null) ans++;
+    return ans;
   }
+
+  public static void printAtDeptK(
+    TreeNode root,
+    int k,
+    ArrayList<Integer> ans
+  ) {
+    if (root == null || k < 0) return;
+
+    if (k == 0) {
+      ans.add(root.val);
+      return;
+    }
+    printAtDeptK(root.left, k - 1, ans);
+    printAtDeptK(root.right, k - 1, ans);
+  }
+
+  //leetcode 863 kdistance away
+
+  public ArrayList<TreeNode> rootToNodePath_01(TreeNode root, int data) {
+    if (root == null) {
+      return new ArrayList<>();
+    }
+
+    if (root.val == data) {
+      ArrayList<TreeNode> base = new ArrayList<>();
+      base.add(root);
+      return base;
+    }
+    ArrayList<TreeNode> left = rootToNodePath_01(root.left, data);
+    if (left.size() != 0) {
+      left.add(root);
+      return left;
+    }
+    ArrayList<TreeNode> right = rootToNodePath_01(root.right, data);
+    if (right.size() != 0) {
+      right.add(root);
+      return right;
+    }
+    return new ArrayList<>();
+  }
+
+  //or we use this boolean array
+  //  public static boolean NodeToRootPath02(TreeNode root, int data, ArrayList<TreeNode> ans) {
+  //       if (root == null)
+  //           return false;
+  //       if (root.val == data) {
+  //           ans.add(root);
+  //           return true;
+  //       }
+
+  //       boolean res = NodeToRootPath02(root.left, data, ans) || NodeToRootPath02(root.right, data, ans);
+  //       if (res)
+  //           ans.add(root);
+  //       return res;
+  //   }
+
+  public static void kdown(
+    TreeNode root,
+    int k,
+    TreeNode blockNode,
+    List<Integer> ans
+  ) {
+    if (root == null || root == blockNode || k < 0) return;
+
+    if (k == 0) {
+      ans.add(root.val);
+      return;
+    }
+    kdown(root.left, k - 1, blockNode, ans);
+    kdown(root.right, k - 1, blockNode, ans);
+  }
+
+  public List<Integer> distanceK(TreeNode root, TreeNode target, int k) {
+    List<Integer> ans = new ArrayList<>();
+    ArrayList<TreeNode> path = rootToNodePath_01(root, target.val);
+    TreeNode blockNode = null;
+    for (int i = 0; i < path.size(); i++) {
+      kdown(path.get(i), k - i, blockNode, ans);
+      blockNode = path.get(i); //update the blockNode
+    }
+    return ans;
+  }
+
+  // public List<Integer> distanceK_01(TreeNode root, TreeNode target, int k) {
+  //   List<Integer> ans = new ArrayList<>();
+  //   TreeNode blockNode = null;
+  // }
+
+  public static int distanceK_01(
+    TreeNode root,
+    TreeNode target,
+    int k,
+    ArrayList<Integer> ans
+  ) {
+    //k is kitna niche jakr print krna hai
+    if (root == null) return -1;
+    if (root == target) {
+      kdown(root, k, null, ans);
+      return 1;
+    }
+    int leftDistance = distanceK_01(root.left, target, k, ans);
+    if (leftDistance != -1) { //means data left side me mila hai
+      kdown(root, k - leftDistance, root.left, ans);
+      return leftDistance + 1;
+    }
+    int rightDistance = distanceK_01(root.left, target, k, ans);
+    if (rightDistance != -1) { //means data left side me mila hai
+      kdown(root, k - rightDistance, root.right, ans);
+      return rightDistance + 1;
+    }
+    return -1;
+  }
+
+  // ==================================
+
+  public static void kdownBurn(
+    TreeNode root,
+    int time,
+    TreeNode blockNode,
+    ArrayList<ArrayList<Integer>> ans
+  ) {
+    if (root == null || root == blockNode) {
+      return;
+    }
+    if (time == ans.size()) ans.add(new ArrayList<>());
+
+    ans.get(time).add(root.val);
+
+    kdownBurn(root.left, time + 1, blockNode, ans); //visit in preorder
+    kdownBurn(root.right, time + 1, blockNode, ans);
+  }
+
+  public static int burningTree(
+    TreeNode root,
+    int target,
+    ArrayList<ArrayList<Integer>> ans
+  ) {
+    if (root == null) return -1;
+    if (root.val == target) {
+      kdownBurn(root, 0, null, ans);
+      return 1;
+    }
+    int leftTime = burningTree(root.left, target, ans); //left se agar answer mila to apne andr 1 dalega
+    if (leftTime != -1) {
+      kdownBurn(root, leftTime, root.left, ans);
+      return leftTime + 1;
+    }
+    int rightTime = burningTree(root.right, target, ans);
+    if (rightTime != -1) {
+      kdownBurn(root, rightTime, root.right, ans);
+      return rightTime + 1;
+    }
+    return -1;
+  }
+
+  public static void burningTree(TreeNode root, int target) {
+    ArrayList<ArrayList<Integer>> ans = new ArrayList<>();
+    burningTree(root, target, ans);
+  }
+
+  // CLASS 02 JUN 13  ==========================================================
+  public static void kdownBurnWithWater(
+    TreeNode root,
+    int time,
+    TreeNode blockNode,
+    ArrayList<ArrayList<Integer>> ans,
+    HashSet<Integer> water
+  ) {
+    if (root == null || root == blockNode || water.contains(root.val)) return;
+    if (time == ans.size()) {
+      ans.add(new ArrayList<>());
+    }
+    ans.get(time).add(root.val);
+
+    kdownBurnWithWater(root.left, time + 1, blockNode, ans, water);
+    kdownBurnWithWater(root.right, time + 1, blockNode, ans, water);
+  }
+
+  public static int burningTreeWithWater(
+    TreeNode root,
+    int fireNode,
+    ArrayList<ArrayList<Integer>> ans,
+    HashSet<Integer> water
+  ) {
+    if (root == null) return -1;
+
+    if (root.val == fireNode) {
+      if (!water.contains(root.val)) { //udr paani nahi hai
+        kdownBurnWithWater(root, 0, null, ans, water);
+        return 1;
+      } else return -2;
+    }
+
+    int ld = burningTreeWithWater(root.left, fireNode, ans, water);
+    if (ld > 0) {
+      //check jidr burn krre hai udr water to nhi hai
+      if (!water.contains(root.val)) {
+        kdownBurnWithWater(root, ld, root.left, ans, water);
+        return ld + 1;
+      }
+      return -2;
+    }
+    if (ld == -2) return -2;
+
+    int rd = burningTreeWithWater(root.right, fireNode, ans, water);
+    if (rd > 0) {
+      if (!water.contains(root.val)) {
+        kdownBurnWithWater(root, rd, root.right, ans, water);
+      }
+      return -2;
+    }
+
+    if (rd == -2) {
+      return -2;
+    }
+
+    return -1;
+  }
+
+  public static ArrayList<ArrayList<Integer>> burningTreeWithWater(
+    TreeNode root,
+    int fireNode,
+    ArrayList<Integer> water
+  ) {
+    ArrayList<ArrayList<Integer>> ans = new ArrayList<>();
+    HashSet<Integer> set = new HashSet<>();
+    for (int ele : water) {
+      set.add(ele);
+    }
+    burningTreeWithWater(root, fireNode, ans, set);
+    return ans;
+  }
+
+  // ==============================================
+
+
 
   public static void main(String[] args) {
     // Traversal();
