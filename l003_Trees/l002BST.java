@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class l002BST {
 
@@ -95,24 +96,47 @@ public class l002BST {
       }
     }
 
-    if (
-      !flag
-    ) ans.clear(); //means data nahi mila
+    if (!flag) ans.clear(); //means data nahi mila
 
     return ans;
   }
 
   public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
-      TreeNode curr = root;
-      while (curr != null) {
-          if (curr.val < p.val && curr.val < q.val)
-              curr = curr.right;
-          else if (curr.val > p.val && curr.val > q.val)
-              curr = curr.left;
-          else
-              return curr; //means data divide hogya idr se
-      }
-      return null; //data mila hi nahi
+    TreeNode curr = root;
+    while (curr != null) {
+      if (curr.val < p.val && curr.val < q.val) curr = curr.right; else if (
+        curr.val > p.val && curr.val > q.val
+      ) curr = curr.left; else return curr; //means data divide hogya idr se
+    }
+    return null; //data mila hi nahi
   }
-  
+
+  //leetcode 173 INORDER TRAVERSAL
+  class BSTIterator {
+
+    // private ArrayDeque<TreeNode> st = new ArrayDeque<>(); //we make stack : addfirst,removefirst
+    private LinkedList<TreeNode> st = new LinkedList<>();
+
+    //Time complexity : if tree is balanced then it is log(n)
+    public BSTIterator(TreeNode root) {
+      addAllLeft(root); // it add right and add all left
+    }
+
+    private void addAllLeft(TreeNode node) {
+      while (node != null) {
+        this.st.addFirst(node);
+        node = node.left;
+      }
+    }
+
+    public int next() { // stack ka top element dega
+      TreeNode removeNode = st.removeFirst();
+      addAllLeft(removeNode.right);
+      return removeNode.val;
+    }
+
+    public boolean hasNext() { //yeh dekhega ki usse just bda number hai stack me
+      return st.size() != 0;
+    }
+  }
 }
