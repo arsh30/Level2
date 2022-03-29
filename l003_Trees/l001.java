@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 
 public class l001 {
@@ -488,7 +489,74 @@ public class l001 {
 
   // ==============================================
 
+  // public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {}
 
+  // ====CLASS 3==============================================================
+
+  //BFS is used to find level OrderTraversal but isme hmko true mark krne ki need nhi hai
+  public static void levelOrderTraversal(TreeNode root) {
+    LinkedList<TreeNode> que = new LinkedList<>();
+    que.addLast(root);
+
+    ArrayList<ArrayList<Integer>> ans = new ArrayList<>();
+    int level = 0;
+    while (que.size() != 0) {
+      int size = que.size();
+      ArrayList<Integer> smallAns = new ArrayList<>();
+      System.out.println(level);
+      while (size-- > 0) {
+        TreeNode rNode = que.removeFirst(); //remove and call for unvisited nbrs
+        smallAns.add(rNode.val);
+
+        if (rNode.left != null) que.addLast(rNode.left);
+        if (rNode.right != null) que.addLast(rNode.right);
+      }
+      ans.add(smallAns);
+      level++;
+    }
+    int count = 0;
+    for (var list : ans) {
+      System.out.println(count++ + "->" + list);
+    }
+  }
+
+  public static List<Integer> leftView(TreeNode root) {
+    LinkedList<TreeNode> que = new LinkedList<>();
+    que.addLast(root);
+
+    List<Integer> ans = new ArrayList<>();
+
+    while (que.size() != 0) {
+      int size = que.size();
+      ans.add(que.getFirst().val);
+      while (size-- > 0) {
+        TreeNode rNode = que.removeFirst();
+
+        if (rNode.left != null) que.addLast(rNode.left);
+        if (rNode.right != null) que.addLast(rNode.right);
+      }
+    }
+    return ans;
+  }
+
+  public List<Integer> rightSideView(TreeNode root) {
+    List<Integer> ans = new ArrayList<>();
+    if (root == null) return ans;
+    LinkedList<TreeNode> que = new LinkedList<>();
+    que.addLast(root);
+
+    while (que.size() != 0) {
+      int size = que.size();
+      ans.add(que.getFirst().val);
+      while (size-- > 0) {
+        TreeNode rNode = que.removeFirst();
+
+        if (rNode.right != null) que.addLast(rNode.right);
+        if (rNode.left != null) que.addLast(rNode.left);
+      }
+    }
+    return ans;
+  }
 
   public static void main(String[] args) {
     // Traversal();
