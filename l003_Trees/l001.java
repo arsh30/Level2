@@ -558,6 +558,98 @@ public class l001 {
     return ans;
   }
 
+  //{minvtlevel, maxVtlevel}, vertical order for top view bottom view we need a class
+  public static void widthofShadow(TreeNode root, int[] minMax, int vlevel) {
+    if (root == null) return;
+
+    minMax[0] = Math.min(minMax[0], vlevel);
+    minMax[1] = Math.max(minMax[1], vlevel);
+
+    widthofShadow(root.left, minMax, vlevel - 1);
+    widthofShadow(root.right, minMax, vlevel + 1);
+  }
+
+  // public static int width(TreeNode root) {
+  //   int[] ans = new int[2];
+  //   widthofShadow(root, ans, 0);
+  //   return ans[1] - ans[0] + 1; //b - a + 1
+  // }
+
+  public static class vPair {
+
+    TreeNode node = null;
+    int vl = 0;
+
+    vPair(TreeNode node, int vl) {
+      this.vl = vl;
+      this.node = node;
+    }
+  }
+
+  public static ArrayList<ArrayList<Integer>> verticalOrderTraversal(
+    TreeNode root
+  ) {
+    LinkedList<vPair> que = new LinkedList<>();
+    int[] minMax = new int[2];
+    widthofShadow(root, minMax, 0);
+
+    int len = minMax[1] - minMax[0] + 1; //re - le + 1 [including a and b]
+
+    que.addLast(new vPair(root, Math.abs(minMax[0]))); // new vPair(node, vl) vl kaise pta lgega width of shadown se
+
+    ArrayList<ArrayList<Integer>> ans = new ArrayList<>();
+    for (int i = 0; i < len; i++) {
+      ans.add(new ArrayList<>());
+    }
+
+    while (que.size() != 0) {
+      int size = que.size();
+      while (size-- > 0) {
+        vPair rp = que.removeFirst();
+        int vl = rp.vl;
+        TreeNode node = rp.node;
+
+        ans.get(vl).add(node.val);
+
+        if (node.left != null) que.addLast(new vPair(node.left, vl - 1));
+
+        if (node.right != null) que.addLast(new vPair(node.right, vl + 1));
+      }
+    }
+    return ans;
+  }
+
+  public static ArrayList<Integer> bottomView(TreeNode root) {
+    LinkedList<vPair> que = new LinkedList<>();
+    int[] minMax = new int[2];
+    widthofShadow(root, minMax, 0);
+
+    int len = minMax[1] - minMax[0] + 1;
+
+    ArrayList<Integer> ans = new ArrayList<>();
+
+    que.addLast(new vPair(root, Math.abs(minMax[0]))); //jo 1st wala hoa vo correct position par ajega jo [most negative hogi taki origin shift hoje]
+
+    for (int i = 0; i < len; i++) {
+      ans.add(null); //by default sabme null fill krdiya
+    }
+
+    while (que.size() != 0) {
+      int size = que.size();
+      while (size-- > 0) {
+        vPair rp = que.removeFirst();
+        int vlevel = rp.vl;
+        TreeNode node = rp.node;
+
+        ans.set(vlevel, node.val);  //means over riding the values
+
+        if (node.left != null) que.addLast(new vPair(node.left, vlevel - 1));
+        if (node.right != null) que.addLast(new vPair(node.right, vlevel + 1));
+      }
+    }
+    return ans;
+  }
+
   public static void main(String[] args) {
     // Traversal();
   }
