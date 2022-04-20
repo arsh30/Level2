@@ -641,13 +641,21 @@ public class l001 {
         int vlevel = rp.vl;
         TreeNode node = rp.node;
 
-        ans.set(vlevel, node.val);  //means over riding the values
+        ans.set(vlevel, node.val); //means over riding the values
 
         if (node.left != null) que.addLast(new vPair(node.left, vlevel - 1));
         if (node.right != null) que.addLast(new vPair(node.right, vlevel + 1));
       }
     }
     return ans;
+  }
+
+  public static ArrayList<Integer> topView(TreeNode root) {
+    LinkedList<vPair> que = new LinkedList<>();
+    int[] minMax = new int[2];
+
+    widthofShadow(root, minMax, 0);
+    int len = minMax[1] - minMax[0] + 1;
   }
 
   public static void main(String[] args) {
